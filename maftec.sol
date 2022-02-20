@@ -1,3 +1,7 @@
+/**
+ *Submitted for verification at BscScan.com on 2022-02-10
+*/
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
@@ -842,27 +846,6 @@ contract METAFINTEC is BEP20, LockToken {
         _marketingWalletAddress = wallet;
     }
 
-    function setUSDTRewardsFee(uint256 value) external onlyOwner{
-        USDTRewardsFee = value;
-        totalFees = USDTRewardsFee.add(liquidityFee).add(marketingFee).add(buybackFee);
-    }
-
-    function setLiquiditFee(uint256 value) external onlyOwner{
-        liquidityFee = value;
-        totalFees = USDTRewardsFee.add(liquidityFee).add(marketingFee).add(buybackFee);
-    }
-
-    function setMarketingFee(uint256 value) external onlyOwner{
-        marketingFee = value;
-        totalFees = USDTRewardsFee.add(liquidityFee).add(marketingFee).add(buybackFee);
-    }
-
-
-    function setBuybackFee(uint256 value) external onlyOwner {
-        buybackFee = value;
-        totalFees = USDTRewardsFee.add(liquidityFee).add(marketingFee).add(buybackFee);
-    }
-
     function setAutomatedMarketMakerPair(address pair, bool value) public onlyOwner {
         require(pair != uniswapV2Pair, "METAFINTEC: The PanUSDTSwap pair cannot be removed from automatedMarketMakerPairs");
         _setAutomatedMarketMakerPair(pair, value);
@@ -1139,10 +1122,6 @@ contract METAFINTEC is BEP20, LockToken {
         }
     }
 
-    function setMaxTxAmount(uint256 _amount) external onlyOwner
-    {
-        _maxTxAmount = _amount;
-    }
 
     //----SWAP AND LIQUIFY---///
     bool public swapAndLiquifyEnabled = false;
