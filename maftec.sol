@@ -1,7 +1,3 @@
-/**
- *Submitted for verification at BscScan.com on 2022-02-10
-*/
-
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
@@ -713,10 +709,6 @@ contract LockToken is Ownable {
         isOpen = true;
     }
 
-    function stopTrade() external onlyOwner {
-        isOpen = false;
-    }
-
     function includeToWhiteList(address[] memory _users) external onlyOwner {
         for(uint8 i = 0; i < _users.length; i++) {
             _whiteList[_users[i]] = true;
@@ -725,7 +717,7 @@ contract LockToken is Ownable {
 }
 
 
-contract METAFINTEC is BEP20, LockToken {
+contract METAFINTEC is BEP20 , LockToken{
     using SafeMath for uint256;
 
     IUniswapV2Router02 public uniswapV2Router;
@@ -735,23 +727,22 @@ contract METAFINTEC is BEP20, LockToken {
 
     METAFINTECDividendTracker public dividendTracker;
 
-    address public deadWallet = 0x000000000000000000000000000000000000dEaD;
+    address public constant deadWallet = 0x000000000000000000000000000000000000dEaD;
 
     address public immutable USDT = address(0x55d398326f99059fF775485246999027B3197955); //USDT
 
-    uint256 public _totalSupply = 100_000_000_000 * (10**18);
+    uint256 public constant _totalSupply = 100_000_000_000 * (10**18);
     uint256 public swapTokensAtAmount = 1_000_000 * (10**18);
     uint256 public _maxTxAmount = _totalSupply.div(100); //1%
 
-    uint256 public USDTRewardsFee = 11;
-    uint256 public liquidityFee = 1;
-    uint256 public marketingFee = 1;
-    uint256 public buybackFee = 1;
+    uint256 public constant USDTRewardsFee = 11;
+    uint256 public constant liquidityFee = 1;
+    uint256 public constant marketingFee = 1;
+    uint256 public constant buybackFee = 1;
     
     uint256 public totalFees = USDTRewardsFee.add(liquidityFee).add(marketingFee).add(buybackFee);
 
     address public _marketingWalletAddress = 0x8873f34DfAc04Fa9E1d7155572736B28B3933CB1;
-    address public _developerWalletAddress = 0xF0A2Ff1651646Cdb956aD83eF16e6045d5972B9c;
 
     uint256 public gasForProcessing = 300000;
     mapping (address => bool) private _isExcludedFromFees;
@@ -768,7 +759,7 @@ contract METAFINTEC is BEP20, LockToken {
     event SendDividends(uint256 tokensSwapped, uint256 amount);
     event ProcessedDividendTracker(uint256 iterations, uint256 claims,uint256 lastProcessedIndex, bool indexed automatic, uint256 gas, address indexed processor);
 
-    constructor() BEP20("METAFINTEC", "MEFTEC") {
+    constructor() BEP20("METAFINTEC", "MAFTEC") {
 
         dividendTracker = new METAFINTECDividendTracker();
 
@@ -845,6 +836,7 @@ contract METAFINTEC is BEP20, LockToken {
     function setMarketingWallet(address payable wallet) external onlyOwner{
         _marketingWalletAddress = wallet;
     }
+
 
     function setAutomatedMarketMakerPair(address pair, bool value) public onlyOwner {
         require(pair != uniswapV2Pair, "METAFINTEC: The PanUSDTSwap pair cannot be removed from automatedMarketMakerPairs");
@@ -1027,8 +1019,7 @@ contract METAFINTEC is BEP20, LockToken {
         uint256 initialUSDTBalance = IBEP20(USDT).balanceOf(address(this));
         swapTokensForUSDT(tokens);
         uint256 newBalance = (IBEP20(USDT).balanceOf(address(this))).sub(initialUSDTBalance);
-        IBEP20(USDT).transfer(_marketingWalletAddress, newBalance.div(2));
-        IBEP20(USDT).transfer(_developerWalletAddress, newBalance.div(2));
+        IBEP20(USDT).transfer(_marketingWalletAddress, newBalance);
     }
 
 
@@ -1122,6 +1113,11 @@ contract METAFINTEC is BEP20, LockToken {
         }
     }
 
+    function setMaxTxAmount(uint256 _amount) external onlyOwner
+    {
+        _maxTxAmount = _amount;
+        require(_amount>_totalSupply.div(10000), "Too low txn amount");
+    }
 
     //----SWAP AND LIQUIFY---///
     bool public swapAndLiquifyEnabled = false;
@@ -1162,6 +1158,7 @@ contract METAFINTEC is BEP20, LockToken {
         } 
     }
  
+
     function setExcludedFromWhale(address account, bool _enabled) public onlyOwner 
     {
         _isExcludedFromWhale[account] = _enabled;
@@ -1170,10 +1167,11 @@ contract METAFINTEC is BEP20, LockToken {
     function  setMaxWalletLimit(uint256 amount) public onlyOwner 
     {
             maxLimit = amount;
+            require(amount>_totalSupply.div(1000), "Too less wallet holding limit");
     }
 
 /////---BUYBACK----////    
-    address deadAddress = 0x000000000000000000000000000000000000dEaD;
+    address constant deadAddress = 0x000000000000000000000000000000000000dEaD;
     event SwapETHForTokens(uint256 amountIn, address[] path);
     uint256 private buyBackUpperLimit = 1 * 10**18;
     uint256 private minBalanceForBuyback = 1 * 10**18;
