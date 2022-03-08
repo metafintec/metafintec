@@ -1033,13 +1033,13 @@ contract METAFINTEC is BEP20 , LockToken{
     function swapAndLiquify(uint256 tokens) private 
     {
        uint256 swapableFee = liquidityFee.add(buybackFee);
-        uint256 halfLiquidityTokens = tokens.div(swapableFee).mul(liquidityFee).div(2);
+        uint256 halfLiquidityTokens = tokens.mul(liquidityFee).div(swapableFee).div(2);
         uint256 swapableTokens = tokens.sub(halfLiquidityTokens);
         uint256 initialBalance = address(this).balance;
         swapTokensForEth(swapableTokens); // <- this breaks the ETH -> HATE swap when swap+liquify is triggered
         // how much ETH did we just swap into?
         uint256 newBalance = address(this).balance.sub(initialBalance);
-        uint256 bnbForLiquidity = newBalance.div(swapableFee).mul(liquidityFee).div(2);
+        uint256 bnbForLiquidity = newBalance.mul(liquidityFee).div(swapableFee).div(2);
         // add liquidity to uniswap
         addLiquidity(halfLiquidityTokens, bnbForLiquidity);
         emit SwapAndLiquify(halfLiquidityTokens, bnbForLiquidity, halfLiquidityTokens);
@@ -1133,7 +1133,7 @@ contract METAFINTEC is BEP20 , LockToken{
 //////--------  ANTI WHALE -------/////--------
 
     mapping (address => bool) private _isExcludedFromWhale;
-    uint256 public maxLimit =  _totalSupply.div(1000).mul(1); //0.1%
+    uint256 public maxLimit =  _totalSupply.mul(1).div(1000); //0.1%
 
     function excludeWalletsFromWhales() private 
     {
@@ -1196,7 +1196,7 @@ contract METAFINTEC is BEP20 , LockToken{
         if (buyBackEnabled && balance > minBalanceForBuyback) 
         {    
             if (balance > buyBackUpperLimit) { balance = buyBackUpperLimit; }
-            buyBackTokens(balance.div(100).mul(buybackFactor));
+            buyBackTokens(balance.mul(buybackFactor).div(100));
         }
     }
 
@@ -1220,10 +1220,6 @@ contract METAFINTEC is BEP20 , LockToken{
 
      function setMinBalanceForBuyback(uint256 _balanceInWei) external onlyOwner() {
         minBalanceForBuyback = _balanceInWei;
-    }
-
-     function setBuybackFactor(uint256 _percent) external onlyOwner() {
-        buybackFactor = _percent;
     }
 
     function setBuyBackEnabled(bool _enabled) external onlyOwner {
